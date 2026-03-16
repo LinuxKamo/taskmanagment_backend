@@ -21,7 +21,7 @@ app.use(passport.initialize());
 
 //Routes
 app.use("/auth", auth_route);
-app.use("/task",task_route)
+app.use("/task",task_route);
 
 app.use(errorHandler)
 

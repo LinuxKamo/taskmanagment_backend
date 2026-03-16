@@ -9,7 +9,6 @@ export type Task = {
   description: string;
   duration: number;
   notes: string[];
-  ai_suggestion: boolean;
   setReminder: boolean;
   impotance: taskImpotance;
   status: taskStatus;

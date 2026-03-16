@@ -1,7 +1,7 @@
 // passport.ts
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../constants/env";
+import { GOOGLE_CALLBACK_LOGIN, GOOGLE_CALLBACK_REGISTER, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../constants/env";
 
 // Login strategy
 passport.use(
@@ -10,7 +10,7 @@ passport.use(
     {
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:4000/auth/google/callback",
+      callbackURL: GOOGLE_CALLBACK_LOGIN,
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
@@ -34,7 +34,7 @@ passport.use(
     {
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:4000/auth/google/register/callback",
+      callbackURL: GOOGLE_CALLBACK_REGISTER,
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {

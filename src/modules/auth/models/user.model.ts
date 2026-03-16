@@ -2,6 +2,46 @@ import mongoose from "mongoose";
 import RoleType from "../../constants/role.types";
 import { compareValue, hashValue } from "../../utils/bcrypt";
 import { userStatus } from "../../constants/status.enum";
+import { Subscription } from "../types/subscription.type";
+import { Sub_Plan } from "../constants/plan.enum";
+import { PLAN_PERMISSIONS } from "../constants/planpermission.record";
+
+const featuresSchema = new mongoose.Schema(
+  {
+    tasklimit: { type: Number, default: 5 },
+    ai_suggestion: { type: Boolean, default: false },
+    emailsupport: { type: Boolean, default: false },
+    recover_deletedtask: { type: Boolean, default: false },
+    ret_reminder: { type: Boolean, default: false },
+  },
+  { _id: false }
+);
+
+export const subscriptionSchema = new mongoose.Schema(
+  {
+    plan: {
+      type: String,
+      enum: Object.values(Sub_Plan),
+      default: Sub_Plan.FREE,
+    },
+    price: {
+      type: Number,
+      default: 0,
+    },
+    permisions: {
+      type: featuresSchema,
+      default: function () {
+        // dynamically assign default features based on the plan
+        return PLAN_PERMISSIONS[Sub_Plan.FREE];
+      },
+    },
+    sub_ends: {
+      type: Date,
+      default: () => new Date(0), // epoch = no expiry (free plan)
+    },
+  },
+  { _id: false }
+);
 
 export interface UserDocument extends mongoose.Document {
   name: string;
@@ -11,8 +51,7 @@ export interface UserDocument extends mongoose.Document {
   password?: string;
   verified: boolean;
   status: userStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  subscription : Subscription;
   comparePassword(val: string): Promise<boolean>;
   omitPassword(): Omit<UserDocument, "password">;
 }
@@ -26,6 +65,10 @@ const userSchema = new mongoose.Schema<UserDocument>(
     password: { type: String, required: false },
     verified: { type: Boolean, required: true },
     status: { type: String, default: userStatus.ACTIVE },
+    subscription: {
+      type: subscriptionSchema,
+      default: () => ({}),
+    },
   },
   {
     timestamps: true,

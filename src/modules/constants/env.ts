@@ -17,6 +17,8 @@ export const FRONTEND_URL = getEnv("FRONTEND_URL");
 export const EMAIL_SENDER = getEnv("EMAIL_SENDER");
 export const GOOGLE_CLIENT_ID = getEnv("GOOGLE_CLIENT_ID");
 export const GOOGLE_CLIENT_SECRET = getEnv("GOOGLE_CLIENT_SECRET");
+export const GOOGLE_CALLBACK_REGISTER = getEnv("GOOGLE_CALLBACK_REGISTER")
+export const GOOGLE_CALLBACK_LOGIN = getEnv("GOOGLE_CALLBACK_LOGIN")
 
 
 

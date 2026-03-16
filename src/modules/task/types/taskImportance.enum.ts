@@ -1,5 +1,6 @@
 export enum taskImpotance {
-    LOW="low",
-    MEDIUM="medium",
-    HIGH="high"
+    LOW="Low",
+    MEDIUM="Medium",
+    HIGH="High",
+    CRITICAL = "Critical"
 }

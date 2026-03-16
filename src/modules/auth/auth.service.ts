@@ -13,8 +13,17 @@ import VerifcationCodeType from "../constants/VaricicationCodeTypes";
 import SessionModel from "../sessions/session.model";
 import AppAssets from "../utils/AppAssets";
 import { hashValue } from "../utils/bcrypt";
-import { fiverMinutesAgo, One_Day_MS, oneHourFromNow, oneYearFromNow, thirtyDaysFromNow } from "../utils/date";
-import { getPasswordResetTemplate, getVerifyEmailTemplate } from "../utils/emalTemplates";
+import {
+  fiverMinutesAgo,
+  One_Day_MS,
+  oneHourFromNow,
+  oneYearFromNow,
+  thirtyDaysFromNow,
+} from "../utils/date";
+import {
+  getPasswordResetTemplate,
+  getVerifyEmailTemplate,
+} from "../utils/emalTemplates";
 import {
   refreshTokenPayload,
   refreshTokenSignOptions,
@@ -25,6 +34,7 @@ import { sendMail } from "../utils/sendMail";
 import ProviderModel from "./models/provider.model";
 import UserModel from "./models/user.model";
 import VerificationModel from "./models/varificationCode.model";
+import { Subscription } from "./types/subscription.type";
 
 export type CreateAccountCredentialsParam = {
   name: string;
@@ -35,7 +45,7 @@ export type CreateAccountCredentialsParam = {
   provider: string;
 };
 export const createAccount_Credentials = async (
-  data: CreateAccountCredentialsParam
+  data: CreateAccountCredentialsParam,
 ) => {
   //verify user doesnt exist
   const existuser = await UserModel.exists({
@@ -58,7 +68,6 @@ export const createAccount_Credentials = async (
     user_id: user._id,
     provider: data.provider,
   });
-  console.log("Provider is", provider);
   // Create varifcation code
   const verificationCode = await VerificationModel.create({
     userId: user.id,
@@ -84,7 +93,7 @@ export const createAccount_Credentials = async (
   // sign access token and refresh token
   const refreshToken = signToken(
     { sessionId: session._id },
-    refreshTokenSignOptions
+    refreshTokenSignOptions,
   );
 
   const accessToken = signToken({ sessionId: session._id, user_id: user._id });
@@ -102,7 +111,10 @@ type GoogleAuthParams = {
 
 export const createAccount_Google = async ({
   googleId,
-  userAgent,email,name,surname
+  userAgent,
+  email,
+  name,
+  surname,
 }: GoogleAuthParams) => {
   AppAssets(email, UNAUTHORIZED, "Google account has no email");
 
@@ -112,7 +124,7 @@ export const createAccount_Google = async ({
     provider_id: googleId,
   });
 
-  let user:any;
+  let user: any;
 
   if (provider) {
     // Existing user
@@ -131,7 +143,6 @@ export const createAccount_Google = async ({
         email,
       });
     } else {
-      
       // New user
       user = await UserModel.create({
         name: name || "",
@@ -141,7 +152,7 @@ export const createAccount_Google = async ({
         role: RoleType.User,
         status: userStatus.ACTIVE,
       });
-      console.log(user)
+      console.log(user);
 
       provider = await ProviderModel.create({
         user_id: user._id,
@@ -160,7 +171,7 @@ export const createAccount_Google = async ({
   // Sign tokens
   const refreshToken = signToken(
     { sessionId: session._id },
-    refreshTokenSignOptions
+    refreshTokenSignOptions,
   );
 
   const accessToken = signToken({
@@ -194,14 +205,14 @@ export const login_service_credentials = async ({
   AppAssets(
     user.status === userStatus.ACTIVE,
     FORBIDDEN,
-    "Account is : "+user.status
+    "Account is : " + user.status,
   );
 
   // 3️⃣ Ensure credentials login is allowed
   AppAssets(
     user.password,
     UNAUTHORIZED,
-    "This account does not support password login"
+    "This account does not support password login",
   );
 
   // 4️⃣ Compare password
@@ -217,7 +228,7 @@ export const login_service_credentials = async ({
   // 6️⃣ Sign tokens
   const refreshToken = signToken(
     { sessionId: session._id },
-    refreshTokenSignOptions
+    refreshTokenSignOptions,
   );
 
   const accessToken = signToken({
@@ -237,7 +248,7 @@ type GoogleLoginParams = {
   googleId: string;
   email?: string;
   userAgent?: string;
-}
+};
 
 export async function login_service_google({
   googleId,
@@ -262,7 +273,7 @@ export async function login_service_google({
   AppAssets(
     user.status === userStatus.ACTIVE,
     FORBIDDEN,
-    "Account is disabled"
+    "Account is disabled",
   );
 
   // 4️⃣ Create session
@@ -274,7 +285,7 @@ export async function login_service_google({
   // 5️⃣ Sign tokens
   const refreshToken = signToken(
     { sessionId: session._id },
-    refreshTokenSignOptions
+    refreshTokenSignOptions,
   );
 
   const accessToken = signToken({
@@ -299,7 +310,7 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
   AppAssets(
     session && session.expiresAt.getTime() > now,
     UNAUTHORIZED,
-    "Session expired"
+    "Session expired",
   );
   // refresh session if expire in 24h
   const sessionNeedsRefresh = session.expiresAt.getTime() - now <= One_Day_MS;
@@ -332,7 +343,7 @@ export const VerifyEmail = async (code: string) => {
   const user = await UserModel.findByIdAndUpdate(
     validCode!.userId,
     { verified: true },
-    { new: true }
+    { new: true },
   );
   // Delete verification code after successful verification
   await validCode!.deleteOne();
@@ -356,7 +367,7 @@ export const sendPasswordResetEmail = async (email: string) => {
   AppAssets(
     count <= 1,
     TOO_MANY_REQUESTS,
-    "too many request please try again later"
+    "too many request please try again later",
   );
   //create verification code
   const expireAt = oneHourFromNow();
@@ -377,34 +388,41 @@ export const sendPasswordResetEmail = async (email: string) => {
   AppAssets(
     data?.id,
     INTERNAL_SERVER_ERROR,
-    `${error?.name} - ${error?.message}`
+    `${error?.name} - ${error?.message}`,
   );
   //return success
   return { url, email_Id: data?.id };
 };
 type ResetParams = {
-  password:string;
-  verificationCode:string;
-}
+  password: string;
+  verificationCode: string;
+};
 
-export const resetPassword = async ({password,verificationCode}:ResetParams)=>{
+export const resetPassword = async ({
+  password,
+  verificationCode,
+}: ResetParams) => {
   //get verificationCode
-  const validCode = await VerificationModel.findOne({_id:verificationCode,type:VerifcationCodeType.PasswordReset,expireAt:{$gt:new Date()}});
-  AppAssets(validCode,NOT_FOUND,"Invalid or expired verifiation code");
-  //update the users password
-  const update_user= await UserModel.findByIdAndUpdate(validCode.userId,{
-    password:await hashValue(password)
+  const validCode = await VerificationModel.findOne({
+    _id: verificationCode,
+    type: VerifcationCodeType.PasswordReset,
+    expireAt: { $gt: new Date() },
   });
-  AppAssets(update_user,INTERNAL_SERVER_ERROR,"Failed to update password");
+  AppAssets(validCode, NOT_FOUND, "Invalid or expired verifiation code");
+  //update the users password
+  const update_user = await UserModel.findByIdAndUpdate(validCode.userId, {
+    password: await hashValue(password),
+  });
+  AppAssets(update_user, INTERNAL_SERVER_ERROR, "Failed to update password");
 
   // delete the verification code
   await validCode!.deleteOne();
-  //delete all sessions 
+  //delete all sessions
   await SessionModel.deleteMany({
-    userId:update_user!._id
-  })
+    userId: update_user!._id,
+  });
 
   return {
-    user:update_user.omitPassword()
-  }
-}
+    user: update_user.omitPassword(),
+  };
+};

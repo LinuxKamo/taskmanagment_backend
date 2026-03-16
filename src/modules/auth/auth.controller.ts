@@ -26,15 +26,20 @@ import { verifyToken } from "../utils/jwt";
 import SessionModel from "../sessions/session.model";
 import AppAssets from "../utils/AppAssets";
 import { FRONTEND_URL } from "../constants/env";
+import { SubscriptionSchema } from "./schema/subscription.schema";
 
 export const register_controller_credentials = catchError(
-  async (req: Request, res: Response) => {
+  async (req, res) => {
     //validate request
     const request = registerSchema.parse({
       ...req.body,
       userAgent: req.headers["user-agent"],
     });
     console.log("Provider is " + request.provider);
+    // const subscription = SubscriptionSchema.parse({
+    //   ...req.body.subscription,
+    //   permisions: req.body.subscription.permisions || [],
+    // });
     //call service
     if (request.provider === "credentials") {
       const { accessToken, refreshToken, user } =
@@ -110,8 +115,6 @@ export const login_controller_google = catchError(async (req, res) => {
     googleId: string;
     email?: string;
   };
-  console.log(googleUser)
-
   AppAssets(googleUser, UNAUTHORIZED, "Google authentication failed");
 
   const { accessToken, refreshToken, user } = await login_service_google({

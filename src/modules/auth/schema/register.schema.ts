@@ -5,7 +5,7 @@ const baseRegisterSchema = z.object({
   name: z.string().min(2),
   surname: z.string().min(2),
   email: z.string().email().min(3).max(255),
-  provider: z.enum(["credentials", "google"]),
+  provider: z.enum(["credentials", "google"]).default("credentials"),
   userAgent: z.string().optional(),
 });
 
