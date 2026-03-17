@@ -3,7 +3,7 @@ import { BAD_REQUEST, CONFLICT, NOT_FOUND, OK } from "../constants/http.status";
 import RoleType from "../constants/role.types";
 import { UserSchema } from "./schema/user.schema";
 import { create_User_Service } from "./user.service";
-import UserModel from "./models/user.model";
+import UserModel from "../auth/models/user.model";
 import catchError from "../utils/catchErrors";
 import AppAssets from "../utils/AppAssets";
 
@@ -26,8 +26,8 @@ export const getAllUsers = catchError(async (req: Request, res: Response) => {
 
   // Remove passwords
   const sanitizedUsers = users
-    .map((user) => user.omitPassword())
-    .filter((user) => user.role !== RoleType.Admin);
+    .map((user: any) => user.omitPassword())
+    .filter((user: any) => user.role !== RoleType.Admin);
 
   // Get total count for pagination info
   const totalUsers = await UserModel.countDocuments({

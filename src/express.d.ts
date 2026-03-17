@@ -5,7 +5,8 @@ declare global {
     interface User {
       googleId: string;
       email?: string;
-      name: string;
+      name?: string;
+      surname?: string;
       avatar?: string;
     }
   }
