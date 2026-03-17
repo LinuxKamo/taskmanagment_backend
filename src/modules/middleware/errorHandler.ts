@@ -13,27 +13,27 @@ const errorHandler: ErrorRequestHandler = (err, req:Request, res:Response, next)
     clearAuthCookies(res)
   }
 
-  if(error instanceof z.ZodError)
+  if(err instanceof z.ZodError)
   {
-    return handleZodErorr(res,error)
+    return handleZodErorr(res,err)
   }
   const handleAppError = (res:Response,err:AppError)=>{
     return res.status(err.statusCode).json({
       message:err.message,errorCCode:err.errorCode,
     });
   }
-  if(error instanceof AppError)
+  if(err instanceof AppError)
   {
-    return handleAppError(res,error)
+    return handleAppError(res,err)
   }
   return res.status(INTERNAL_SERVER_ERROR).json({ error: err.message });
 };
 export default errorHandler
 
 const handleZodErorr = (res: Response,error:z.ZodError)=> {
-    const errors=error.issues.map((err)=>{
+    const errors=error.issues.map((err)=>({
         path:err.path.join(",")
-    })
+    }))
     return res.status(BAD_REQUEST).json({
         message:error.message,errors
     })

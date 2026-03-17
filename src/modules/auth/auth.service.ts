@@ -129,7 +129,7 @@ export const createAccount_Google = async ({
   if (provider) {
     // Existing user
     user = await UserModel.findById(provider.user_id);
-    AppAssets(!user, CONFLICT, "Email already in use");
+    AppAssets(user, NOT_FOUND, "User not found");
   } else {
     // Check if email exists
     user = await UserModel.findOne({ email });

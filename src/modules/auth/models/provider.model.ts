@@ -10,8 +10,8 @@ export interface ProviderDocument extends mongoose.Document{
 
 const ProviderSchema = new mongoose.Schema<ProviderDocument>(
     {
-        email:{type:String,unique:true, required:true},
-        user_id:{type:mongoose.Schema.Types.ObjectId,unique:true},
+        email:{type:String, required:true},
+        user_id:{type:mongoose.Schema.Types.ObjectId},
         provider:{type:String,required:true},
         provider_id:{type:String,required:true,default:"N/A"},
     },

@@ -11,6 +11,7 @@ passport.use(
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
       callbackURL: GOOGLE_CALLBACK_LOGIN,
+      proxy: true,
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
@@ -35,6 +36,7 @@ passport.use(
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
       callbackURL: GOOGLE_CALLBACK_REGISTER,
+      proxy: true,
     },
     async (_accessToken, _refreshToken, profile, done) => {
       try {
